@@ -3,11 +3,13 @@ import {
   BrowserRouter as Router,
   Route,
   Switch,
-  Redirect,
+  
 } from "react-router-dom";
+import NewPlace from "./places/pages/NewPlace.jsx";
 import Places from "./places/pages/Places.jsx";
-import MainNavigation from "./shared/components/navigation/MainNavigation.js";
+import MainNavigation from "./shared/components/navigation/MainNavigation.jsx";
 import Users from "./users/pages/Users.jsx";
+import UpdatePlace from "./places/pages/UpdatePlace.jsx";
 
 function App() {
   return (
@@ -17,6 +19,14 @@ function App() {
         <Switch>
           <Route path="/:userId/Places" exact>
             <Places />
+          </Route>
+
+          <Route path="/places/new" exact>
+            <NewPlace />
+          </Route>
+
+          <Route path="/places/:placeId" exact>
+            <UpdatePlace />
           </Route>
 
           <Route path="/" exact>

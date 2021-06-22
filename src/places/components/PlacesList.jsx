@@ -4,7 +4,8 @@ import PlaceItem from "./PlaceItem";
 import Card from "../../shared/components/UIElements/Card";
 import "./PlacesList.css";
 
-const PlacesList = (props) => {
+function PlacesList (props) {
+
   if (props.items.length === 0) {
     return (
       <div className="place-list center">
@@ -26,7 +27,7 @@ const PlacesList = (props) => {
           address={item.address}
           description={item.description}
           userId={item.userId}
-          coordinates={item.coordinates}
+          coordinates={item.coordinates}          
         />
       ))}
     </ul>
