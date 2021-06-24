@@ -10,6 +10,7 @@ import Places from "./places/pages/Places.jsx";
 import MainNavigation from "./shared/components/navigation/MainNavigation.jsx";
 import Users from "./users/pages/Users.jsx";
 import UpdatePlace from "./places/pages/UpdatePlace.jsx";
+import Auth from "./users/pages/Auth.jsx";
 
 function App() {
   return (
@@ -27,6 +28,10 @@ function App() {
 
           <Route path="/places/:placeId" exact>
             <UpdatePlace />
+          </Route>
+
+          <Route path="/auth" exact>
+            <Auth />
           </Route>
 
           <Route path="/" exact>

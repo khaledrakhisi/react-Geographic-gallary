@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import Input from "../../shared/components/FormElements/Input";
@@ -9,25 +9,66 @@ import {
 import Button from "../../shared/components/FormElements/Button";
 import { PLACES } from "./Places";
 import useFormValidity from "../../shared/components/Hooks/hook-useForm";
+import Card from "../../shared/components/UIElements/Card";
 
 function UpdatePlace() {
+  const [isLoading, setIsLoading] = useState(true);
+
   const placeId = useParams().placeId;
-  const place = PLACES.find((p) => p.id === placeId);
 
   let inputs = {
     input1: {
-      value: place.title,
-      isValid: true,
+      value: "",
+      isValid: false,
     },
     input2: {
-      value: place.description,
-      isValid: true,
+      value: "",
+      isValid: false,
     },
   };
-  const [inputState, eh_input] = useFormValidity(inputs, false);
 
-    console.log(inputState);
+  const place = PLACES.find((p) => p.id === placeId);
+  const [inputState, eh_input, setFormData] = useFormValidity(inputs, false);
+
+  useEffect(() => {
+    if (!place) {
+      return (
+        <div className="center">
+          <Card>
+            <h3>No data found.</h3>
+          </Card>
+        </div>
+      );
+    }
+
+    inputs = {
+        input1: {
+          value: place.title,
+          isValid: true,
+        },
+        input2: {
+          value: place.description,
+          isValid: true,
+        },
+      };
+    
+    setFormData(inputs, true);
+
+    setIsLoading(false); //data has been loaded here
+  }, [setFormData, place]);
+
+  //   console.log(inputState);
   const eh_form_submition = () => {};
+
+  if (isLoading) {
+    return (
+      <div className="center">
+        <Card>
+          <h3>Loading...</h3>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <form className="place-form" onSubmit={eh_form_submition}>

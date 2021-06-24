@@ -60,7 +60,7 @@ function Input(props) {
   }
 
   const element =
-    props.type === "text" ? (
+    props.type === "text" || props.type === "password"? (
       <input
         id={props.id}
         type={props.type}
