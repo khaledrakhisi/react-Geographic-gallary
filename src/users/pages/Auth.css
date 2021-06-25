@@ -9,6 +9,10 @@
     margin: 7rem auto;
     text-align: center;
   }
+
+  .authentication label{
+    text-align: left;
+  }
   
   .authentication form {
     margin-bottom: 1rem;

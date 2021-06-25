@@ -82,10 +82,10 @@ function PlaceItem(props) {
             <Button inverse onClick={showMap}>
               View on map
             </Button>
-            <Button to={"/places/" + props.id}>Edit</Button>
-            <Button danger onClick={openDeletionModal}>
+            {props.showEditButtons && <Button to={"/places/" + props.id}>Edit</Button>}
+            {props.showEditButtons && <Button danger onClick={openDeletionModal}>
               Delete
-            </Button>
+            </Button>}
           </div>
         </Card>
       </li>

@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import PlaceItem from "./PlaceItem";
 import Card from "../../shared/components/UIElements/Card";
 import "./PlacesList.css";
 import Button from "../../shared/components/FormElements/Button";
+import { AuthContext } from "../../shared/components/context/Auth-context";
 
 function PlacesList (props) {
+
+  const auth = useContext(AuthContext);
 
   if (props.items.length === 0) {
     return (
@@ -29,7 +32,8 @@ function PlacesList (props) {
           address={item.address}
           description={item.description}
           userId={item.userId}
-          coordinates={item.coordinates}          
+          coordinates={item.coordinates}
+          showEditButtons={auth.isLoggedin}
         />
       ))}
     </ul>
