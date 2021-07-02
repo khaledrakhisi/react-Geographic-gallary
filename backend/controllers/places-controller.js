@@ -1,7 +1,9 @@
-const HttpError = require("../models/http-error");
 const { v4: uuid_v4 } = require('uuid');
+const {validationResult} = require("express-validator");
 
-const PLACES = [
+const HttpError = require("../models/http-error");
+
+let PLACES = [
   {
     id: "p1",
     title: "TAJ MAHAL",
@@ -56,7 +58,23 @@ const getPlacesByUserId = (req, res, next) => {
 };
 
 const addPlace = (req, res, next) => {
-  const { title, description, location, address, ownerId } = req.body;
+  const result = validationResult(req).formatWith(
+    ({ location, msg, param, value, nestedErrors }) => {
+      // Build your resulting errors however you want! String, object, whatever - it works!
+      return `${param} has ${msg} >>> ${value}`;
+    }
+  );
+  if (!result.isEmpty()) {
+    // Response will contain something like
+    // { errors: [ "body[password]: must be at least 10 chars long" ] }
+    // return res.json({ errors: result.array() });
+    let errorMessage = "";
+    result.array().forEach((element) => {
+      errorMessage += element + "\n";
+    });
+    throw new HttpError(errorMessage, 422);
+  }
+  const { title, description, location, address, ownerId } = req.body;  
 
   const place = {
     id: uuid_v4(),
@@ -74,6 +92,23 @@ const addPlace = (req, res, next) => {
 };
 
 const updatePlaceById = (req, res, next) => {
+  const result = validationResult(req).formatWith(
+    ({ location, msg, param, value, nestedErrors }) => {
+      // Build your resulting errors however you want! String, object, whatever - it works!
+      return `${param} has ${msg} >>> ${value}`;
+    }
+  );
+  if (!result.isEmpty()) {
+    // Response will contain something like
+    // { errors: [ "body[password]: must be at least 10 chars long" ] }
+    // return res.json({ errors: result.array() });
+    let errorMessage = "";
+    result.array().forEach((element) => {
+      errorMessage += element + "\n";
+    });
+    throw new HttpError(errorMessage, 422);
+  }
+  
   const { title, description, } = req.body;
 
   const placeId = req.params.placeId; //{placeid:"the value"}
@@ -95,9 +130,12 @@ const updatePlaceById = (req, res, next) => {
 
 const deletePlaceById = (req, res, next) => {
   const placeId = req.params.placeId; //{placeid:"the value"}
-  const NEWPLACES = PLACES.filter(item=>item.id !== placeId);
+  if(!PLACES.find(item=>item.id === placeId)){
+    throw new HttpError("the placeid you provided not found.", 404);
+  }
+  PLACES = PLACES.filter(item=>item.id !== placeId);
 
-  res.status(201).json({NEWPLACES});  
+  res.status(201).json({PLACES});  
 }
 
 exports.getAllPlaces = getAllPlaces;

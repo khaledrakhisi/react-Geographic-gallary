@@ -1,5 +1,7 @@
-const HttpError = require("../models/http-error");
 const { v4: uuid_v4 } = require("uuid");
+const { validationResult } = require("express-validator");
+
+const HttpError = require("../models/http-error");
 
 const USERS = [
   {
@@ -39,6 +41,23 @@ const getUserById = (req, res, next) => {
 };
 
 const getUserByName = (req, res, next) => {
+  const result = validationResult(req).formatWith(
+    ({ location, msg, param, value, nestedErrors }) => {
+      // Build your resulting errors however you want! String, object, whatever - it works!
+      return `${param} has ${msg} >>> ${value}`;
+    }
+  );
+  if (!result.isEmpty()) {
+    // Response will contain something like
+    // { errors: [ "body[password]: must be at least 10 chars long" ] }
+    // return res.json({ errors: result.array() });
+    let errorMessage = "";
+    result.array().forEach((element) => {
+      errorMessage += element + "\n";
+    });
+    throw new HttpError(errorMessage, 422);
+  }
+
   const { email, password } = req.body;
   const user = USERS.find((item) => item.email === email);
 
@@ -54,8 +73,24 @@ const getUserByName = (req, res, next) => {
 };
 
 const addUser = (req, res, next) => {
-  const { name, email, password, imageUrl } = req.body;
+  const result = validationResult(req).formatWith(
+    ({ location, msg, param, value, nestedErrors }) => {
+      // Build your resulting errors however you want! String, object, whatever - it works!
+      return `${param} has ${msg} >>> ${value}`;
+    }
+  );
+  if (!result.isEmpty()) {
+    // Response will contain something like
+    // { errors: [ "body[password]: must be at least 10 chars long" ] }
+    // return res.json({ errors: result.array() });
+    let errorMessage = "";
+    result.array().forEach((element) => {
+      errorMessage += element + "\n";
+    });
+    throw new HttpError(errorMessage, 422);
+  }
 
+  const { name, email, password, imageUrl } = req.body;
   const user = USERS.find((item) => item.email === email);
   if (user) {
     // 422 : invalid user input
