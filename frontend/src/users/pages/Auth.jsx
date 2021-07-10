@@ -13,10 +13,14 @@ import {
 } from "../../shared/util/validators";
 import Card from "../../shared/components/UIElements/Card";
 import { AuthContext } from "../../shared/components/context/Auth-context";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 
 function Auth() {
   const [isSignupMode, setIsSignupMode] = useState(false);
-  const auth = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const _authContext = useContext(AuthContext);
 
   let inputElements = {
     input2: {
@@ -43,15 +47,69 @@ function Auth() {
     false
   );
 
-  const eh_form_submittion = (event) => {
+  const eh_form_submission = async (event) => {
     // console.log(isSignupMode, inputState.inputElements);
-    if(isSignupMode){
-
-    }else{
-        auth.login();
-    }
-
     event.preventDefault();
+
+    if (isSignupMode) {
+      try {
+        setIsLoading(true);
+        const response = await fetch("http://localhost:5000/api/users/signup", {
+          method: "POST",
+          body: JSON.stringify({
+            name: inputState.inputElements.input1.value,
+            email: inputState.inputElements.input2.value,
+            password: inputState.inputElements.input3.value,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.msg);
+        }
+
+        setIsLoading(false);
+        _authContext.login();
+        console.log(responseData);
+      } catch (err) {
+        setIsLoading(false);
+        setErrorMessage(
+          err.message || "An Error Happend.Please check the console log."
+        );
+        console.log(err);
+      }
+    } else {
+      try {
+        setIsLoading(true);
+        const response = await fetch("http://localhost:5000/api/users/signin", {
+          method: "POST",
+          body: JSON.stringify({
+            email: inputState.inputElements.input2.value,
+            password: inputState.inputElements.input3.value,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.msg);
+        }
+
+        setIsLoading(false);
+        _authContext.login();
+        console.log(responseData);
+        _authContext.login();
+      } catch (err) {
+        setIsLoading(false);
+        setErrorMessage(
+          err.message || "An Error Happend.Please check the console log."
+        );
+        console.log(err);
+      }
+    }
   };
 
   const eh_link_signup_click = () => {
@@ -84,72 +142,81 @@ function Auth() {
   };
 
   return (
-    <Card className="authentication">
-      {isSignupMode ? (
-        <h3>Signing new user up</h3>
-      ) : (
-        <h3>Authentication required</h3>
+    <React.Fragment>
+      {errorMessage && (
+        <ErrorModal
+          errorMessage={errorMessage}
+          onClear={() => setErrorMessage(null)}
+        />
       )}
-      <hr />
-      <form
-        onSubmit={eh_form_submittion}
-        onClick={() => {
-          //👇 it seems that it take a little while to modification to be applied to inputState!!
-          console.log(inputState.inputElements);
-        }}
-      >
-        {isSignupMode && (
+      <Card className="authentication">
+        {isLoading && <LoadingSpinner asOverlay />}
+        {isSignupMode ? (
+          <h3>Signing new user up</h3>
+        ) : (
+          <h3>Authentication required</h3>
+        )}
+        <hr />
+        <form
+          onSubmit={eh_form_submission}
+          onClick={() => {
+            //👇 it seems that it take a little while to modification to be applied to inputState!!
+            // console.log(inputState.inputElements);
+          }}
+        >
+          {isSignupMode && (
+            <Input
+              id="input1"
+              type="text"
+              label="name: "
+              placeholder="i.e: khaled"
+              validators={[VALIDATOR_REQUIRE]}
+              errorText="required"
+              onInput={eh_input}
+            />
+          )}
+
           <Input
-            id="input1"
+            id="input2"
             type="text"
-            label="name: "
-            placeholder="i.e: khaled"
-            validators={[VALIDATOR_REQUIRE]}
-            errorText="required"
+            label="E-mail: "
+            placeholder="i.e: khaledrakhisi@gmail.com"
+            validators={[VALIDATOR_EMAIL()]}
+            errorText="invalid email"
             onInput={eh_input}
           />
-        )}
 
-        <Input
-          id="input2"
-          type="text"
-          label="E-mail: "
-          placeholder="i.e: khaledrakhisi@gmail.com"
-          validators={[VALIDATOR_EMAIL()]}
-          errorText="invalid email"
-          onInput={eh_input}
-        />
+          <Input
+            id="input3"
+            type="password"
+            label="password: "
+            validators={[VALIDATOR_MINLENGTH(8)]}
+            errorText="invalid password"
+            onInput={eh_input}
+          />
 
-        <Input
-          id="input3"
-          type="password"
-          label="password: "
-          validators={[VALIDATOR_MINLENGTH(8)]}
-          errorText="invalid password"
-          onInput={eh_input}
-        />
+          <Button type="submit" disabled={!inputState.isFormValid}>
+            {isSignupMode ? "Signup" : "Login"}
+          </Button>
 
-        <Button type="submit" disabled={!inputState.isFormValid}>
-          {isSignupMode ? "Signup" : "Login"}
-        </Button>
-
-        {!isSignupMode ? (
-          <p>
-            Don't have an account?{" "}
-            <Link to="#" onClick={eh_link_signup_click}>
-              Signup
-            </Link>
-          </p>
-        ) : (
-          <p>
-            You've already signed up?{" "}
-            <Link to="#" onClick={eh_link_login_click}>
-              Login
-            </Link>
-          </p>
-        )}
-      </form>
-    </Card>
+          {!isSignupMode ? (
+            <p>
+              Don't have an account?{" "}
+              <Link to="#" onClick={eh_link_signup_click}>
+                Signup
+              </Link>
+            </p>
+          ) : (
+            <p>
+              You've already signed up?{" "}
+              <Link to="#" onClick={eh_link_login_click}>
+                Login
+              </Link>
+            </p>
+          )}
+        </form>
+      </Card>
+    </React.Fragment>
   );
 }
 

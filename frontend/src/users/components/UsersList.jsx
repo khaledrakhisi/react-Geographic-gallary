@@ -8,7 +8,7 @@ const UsersList = (props) => {
   if (props.items.length === 0) {
     return (
       <Card>
-        <h2>Userlist is empty!</h2>
+        <h2>User list is empty!</h2>
       </Card>
     );
   }
@@ -21,7 +21,7 @@ const UsersList = (props) => {
           id={item.id}
           name={item.name}
           imageUrl={item.imageUrl}
-          places={item.places}
+          places={item.places.length}
         />
       ))}
     </ul>

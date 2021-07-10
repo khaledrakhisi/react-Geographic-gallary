@@ -12,7 +12,7 @@ const UserItem = (props) => {
         <Link to={`/${props.id}/places`}>
           <div className="user-item__image">
             {/* <img src={props.image} alt={props.name}/> */}
-            <Avatar image={props.imageUrl} alt={props.name} />
+            <Avatar image={props.imageUrl ? props.imageUrl : "https://www.kindpng.com/picc/m/22-223941_transparent-avatar-png-male-avatar-icon-transparent-png.png"} alt={props.name} />
           </div>
           <div className="user-item__info">
             <h2>{props.name}</h2>

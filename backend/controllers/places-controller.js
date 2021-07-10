@@ -1,9 +1,11 @@
 const { v4: uuid_v4 } = require("uuid");
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
 const geocoding = require("../util/geocoding");
 const Place = require("../models/Place");
+const User = require("../models/User");
 
 // let PLACES = [
 //   {
@@ -66,19 +68,35 @@ const getPlacebyId = async (req, res, next) => {
 
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.userId; //{placeid:"the value"}
-  let places = null;
+
+  // let places = null;
+  // try {
+  //   places = await Place.find({ userId: userId });
+  // } catch (err) {
+  //   return next(new HttpError("something's wrong with the database!", 500));
+  // }
+  // //const place = PLACES.find((p) => p.id === placeId);
+
+  // if (!places || places.length === 0) {
+  //   return next(new HttpError("no place found.", 404));
+  // }
+
+  // res.json({ places: places.map((item) => item.toObject({ getters: true })) });
+
+  let userPlaces = null;
   try {
-    places = await Place.find({ userId: userId });
+    userPlaces = await User.findById(userId).populate("places");
+    // console.log(userPlaces.places);
   } catch (err) {
-    return next(new HttpError("something's wrong with the database!", 500));
-  }
-  //const place = PLACES.find((p) => p.id === placeId);
-
-  if (!places || places.length === 0) {
-    return next(new HttpError("no place found.", 404));
+    console.log(err);
+    return next(new HttpError("userPlaces: something's wrong with the database!", 500));
   }
 
-  res.json({ places: places.map((item) => item.toObject({ getters: true })) });
+  if (!userPlaces || userPlaces.places.length === 0) {
+    return next(new HttpError("the user does not have related place.", 404));
+  }
+
+  res.json({ places: userPlaces.places.map((item) => item.toObject({ getters: true })) });
 };
 
 const addPlace = async (req, res, next) => {
@@ -96,7 +114,7 @@ const addPlace = async (req, res, next) => {
     result.array().forEach((element) => {
       errorMessage += element + "\n";
     });
-    return next(HttpError(errorMessage, 422));
+    return next(new HttpError(errorMessage, 422));
   }
   const { title, description, address, userId } = req.body;
 
@@ -118,13 +136,33 @@ const addPlace = async (req, res, next) => {
     address,
     userId,
   });
-  // PLACES.push(place);
+
+  let user = null;
+  try {
+    user = await User.findById(userId);
+  } catch (error) {
+    console.log(error);
+    return next(
+      new HttpError("users: something's wrong with the database!", 500)
+    );
+  }
+
+  if (!user) {
+    return next(
+      new HttpError("the id provided for the user is not exist.", 404)
+    );
+  }
 
   try {
-    await place.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await place.save({ session });
+    user.places.push(place);
+    await user.save({ session });
+    await session.commitTransaction();
   } catch (err) {
-    const error = new HttpError("adding new place was failed.", err, 500);
-    return next(error);
+    console.log(err);
+    return next(new HttpError("adding new place was failed.", 500));
   }
 
   res.status(201).json({ place });
@@ -195,19 +233,41 @@ const deletePlaceById = async (req, res, next) => {
 
   let place = null;
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate("userId");
   } catch (err) {
-    return next(new HttpError("something's wrong with the database!", 500));
+    console.log(err);
+    return next(
+      new HttpError("places1: something's wrong with the database!", 500)
+    );
   }
 
   if (!place) {
     return next(new HttpError("place with specified id not found.", 404));
   }
 
+  // let user = null;
+  // try {
+  //   user = await User.findById(place.userId);
+  // } catch (error) {
+  //   console.log(error);
+  //   return next(
+  //     new HttpError("users: something's wrong with the database!", 500)
+  //   );
+  // }
+
   try {
-    Place.remove();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await place.remove({ session });
+    // // user.places = user.places.filter((item) => item !== place.placeId);
+    place.userId.places.pull(place);
+    await place.userId.save({ session });
+    await session.commitTransaction();
   } catch (err) {
-    return next(new HttpError("something's wrong with the database!", 402));
+    console.log(err);
+    return next(
+      new HttpError("places2: something's wrong with the database!", 402)
+    );
   }
 
   res.status(200).json({ msg: "place deleted." });
