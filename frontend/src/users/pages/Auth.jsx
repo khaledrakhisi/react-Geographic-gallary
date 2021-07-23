@@ -6,6 +6,7 @@ import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import "./Auth.css";
 import useFormValidity from "../../shared/components/Hooks/hook-useForm";
+import useHttpClient from "../../shared/components/Hooks/hook-useHttpClient";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
@@ -18,8 +19,8 @@ import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 
 function Auth() {
   const [isSignupMode, setIsSignupMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const { isLoading, errorMessage, sendRequest, clearError } = useHttpClient();
+
   const _authContext = useContext(AuthContext);
 
   let inputElements = {
@@ -32,15 +33,6 @@ function Auth() {
       isValid: false,
     },
   };
-  //   if (isSignupMode) {
-  //     inputElements = {
-  //       ...inputElements,
-  //       input1: {
-  //         value: "",
-  //         isValid: false,
-  //       },
-  //     };
-  //   }
 
   const [inputState, eh_input, setFormData] = useFormValidity(
     inputElements,
@@ -48,67 +40,40 @@ function Auth() {
   );
 
   const eh_form_submission = async (event) => {
-    // console.log(isSignupMode, inputState.inputElements);
+    
     event.preventDefault();
 
     if (isSignupMode) {
       try {
-        setIsLoading(true);
-        const response = await fetch("http://localhost:5000/api/users/signup", {
-          method: "POST",
-          body: JSON.stringify({
+        const resposeData = await sendRequest(
+          "http://localhost:5000/api/users/signup",
+          "POST",
+          JSON.stringify({
             name: inputState.inputElements.input1.value,
             email: inputState.inputElements.input2.value,
             password: inputState.inputElements.input3.value,
           }),
-          headers: { "Content-Type": "application/json" },
-        });
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-          throw new Error(responseData.msg);
-        }
-
-        setIsLoading(false);
-        _authContext.login();
-        console.log(responseData);
-      } catch (err) {
-        setIsLoading(false);
-        setErrorMessage(
-          err.message || "An Error Happend.Please check the console log."
+          { "Content-Type": "application/json" }
         );
-        console.log(err);
-      }
+       
+        _authContext.login(resposeData.user);
+      } catch (err) {}
+     
     } else {
       try {
-        setIsLoading(true);
-        const response = await fetch("http://localhost:5000/api/users/signin", {
-          method: "POST",
-          body: JSON.stringify({
+        const resposeData = await sendRequest(
+          "http://localhost:5000/api/users/signin",
+          "POST",
+          JSON.stringify({
             email: inputState.inputElements.input2.value,
             password: inputState.inputElements.input3.value,
           }),
-          headers: { "Content-Type": "application/json" },
-        });
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-          throw new Error(responseData.msg);
-        }
-
-        setIsLoading(false);
-        _authContext.login();
-        console.log(responseData);
-        _authContext.login();
-      } catch (err) {
-        setIsLoading(false);
-        setErrorMessage(
-          err.message || "An Error Happend.Please check the console log."
+          { "Content-Type": "application/json" }
         );
-        console.log(err);
-      }
+       
+        // console.log(resposeData);
+        _authContext.login(resposeData.user);
+      } catch (err) {}
     }
   };
 
@@ -146,7 +111,7 @@ function Auth() {
       {errorMessage && (
         <ErrorModal
           errorMessage={errorMessage}
-          onClear={() => setErrorMessage(null)}
+          onClose={clearError}
         />
       )}
       <Card className="authentication">

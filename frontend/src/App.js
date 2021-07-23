@@ -15,17 +15,18 @@ import Auth from "./users/pages/Auth.jsx";
 import { AuthContext } from "./shared/components/context/Auth-context";
 
 function App() {
-  const [isLoggedin, setIsLoggedin] = useState(false);
+  const [loggedinUser, setLoggedinUser] = useState(null);
 
-  const login = useCallback(() => {
-    setIsLoggedin(true);
+  const login = useCallback((user) => {
+    setLoggedinUser(user);
   }, []);
+
   const logoff = useCallback(() => {
-    setIsLoggedin(false);
+    setLoggedinUser(false);
   }, []);
 
   let routes;
-  if (isLoggedin) {
+  if (loggedinUser) {
     routes = (
       <Switch>   
         <Route path="/" exact>
@@ -69,12 +70,13 @@ function App() {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedin: isLoggedin, login: login, logoff: logoff }}
+      value={{ loggedinUser : loggedinUser, login: login, logoff: logoff }}
     >
       <Router>
         <MainNavigation />
         <main>{routes}</main>
       </Router>
+
     </AuthContext.Provider>
   );
 }
