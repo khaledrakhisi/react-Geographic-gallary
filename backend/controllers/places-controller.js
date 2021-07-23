@@ -121,7 +121,7 @@ const addPlace = async (req, res, next) => {
   let coordinates = null;
   try {
     coordinates = await geocoding.geocode(address);
-    // console.log(coordinates);
+    console.log(coordinates);
   } catch (err) {
     return next(err);
   }

@@ -75,7 +75,7 @@ const userLogin = async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ msg: "signed in successfully." });
+  res.status(200).json({ user: user.toObject({getters: true}) });
 };
 
 const addUser = async (req, res, next) => {

@@ -2,15 +2,16 @@ const axios = require("axios");
 
 const HttpError = require("../models/http-error");
 
-const ACCESS_TOKRN =
+const ACCESS_TOKEN =
   "pk.eyJ1Ijoia2hhbGVkciIsImEiOiJja3BzN2t1OHMwZHQxMm5vY25tY3Q3NHI5In0.akzVvXBLn643NdB94sZaGg";
 
 const geocode = async (s_address) => {
   const response = await axios.get(
-    `https://api.mapbox.com/geocoding/v5/mapbox.places/${s_address}.json?access_token=${ACCESS_TOKRN}`
+    `https://api.mapbox.com/geocoding/v5/mapbox.places/${s_address}.json?access_token=${ACCESS_TOKEN}`
   );
   const data = response.data;
-  if (!data) {
+  console.log(response.data);
+  if (!data || data.features.length <= 0) {
     throw new HttpError("address not found.", 422);
   }
 
@@ -19,7 +20,6 @@ const geocode = async (s_address) => {
     lng: data.features[0].geometry.coordinates[0],
   };
   return coordinates;
-  // console.log(response.data);
 };
 
 exports.geocode = geocode;

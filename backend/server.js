@@ -43,7 +43,7 @@ app.use((error, req, res, next) => {
 
 // database
 mongoose
-  .connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
   .then(() => {
     console.log(`connecting to database was successfully!`);
     // if connection to the db was ok then
