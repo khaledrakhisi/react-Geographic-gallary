@@ -33,7 +33,7 @@ function App() {
           <Users />
         </Route>  
 
-        <Route path="/:userId/Places" exact>
+        <Route path="/Places/user/:userId" exact>
           <Places />
         </Route>  
 
@@ -55,7 +55,7 @@ function App() {
           <Users />
         </Route>      
 
-        <Route path="/:userId/Places" exact>
+        <Route path="/Places/user/:userId" exact>
           <Places />
         </Route>  
 

@@ -13,6 +13,7 @@ mapboxgl.accessToken =
 const Map = (props) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
+  
   const [lat, setLat] = useState(props.coordinates.lat);
   const [lng, setLng] = useState(props.coordinates.lng);
   const [zoom, setZoom] = useState(props.zoom);

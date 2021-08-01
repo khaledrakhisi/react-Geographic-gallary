@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import {useParams, useHistory} from "react-router-dom";
 
 import Button from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UIElements/Card";
@@ -6,10 +7,20 @@ import Modal from "../../shared/components/UIElements/Modal";
 import "./PlaceItem.css";
 import Map from "../../shared/components/UIElements/Map";
 import { useMediaQuery } from "../../shared/components/Hooks/hook-useMediaQuery";
+import useHttpClient from "../../shared/components/Hooks/hook-useHttpClient";
+import { AuthContext } from "../../shared/components/context/Auth-context";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 function PlaceItem(props) {
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeletionOpen, setIsDeletionOpen] = useState(false);
+  const {isLoading, errorMessage, sendRequest, clearError} = useHttpClient();
+  const history = useHistory();
+  const authentication = useContext(AuthContext);
+
+  const placeId = useParams().placeId;
+
 
   const showMap = () => {
     setIsModalOpen(true);
@@ -20,9 +31,14 @@ function PlaceItem(props) {
 
   const closeDeletionModal = () => setIsDeletionOpen(false);
   const openDeletionModal = () => setIsDeletionOpen(true);
-  const deletePlace = () => {
-    console.log("deleting...");
-    setIsDeletionOpen(false);
+  const deletePlace = async () => {
+    closeDeletionModal();
+    try{      
+      await sendRequest(`http://localhost:5000/api/places/${props.id}`, "DELETE");
+      //console.log("dddddd.");
+      props.afterItemUpdate(props.id);      
+      history.push(`/places/user/${authentication.loggedinUser._id}`)
+    }catch(err){}
   };
 
   // const mediaMatch = window.matchMedia('(max-width: 768px)');
@@ -36,7 +52,7 @@ function PlaceItem(props) {
   };
 
   return (
-    <React.Fragment>
+    <React.Fragment>    
       <Modal
         show={isModalOpen}
         onCancel={closeMap}
@@ -68,8 +84,9 @@ function PlaceItem(props) {
           <h3>Are you sure you want to proceed?</h3>
         </div>
       </Modal>
-      <li className="place-item">
+      <li className="place-item">      
         <Card className="place-item__content">
+        {isLoading && <LoadingSpinner asOverlay/>}
           <div className="place-item__image">
             <img src={props.imageUrl} alt={props.title} />
           </div>

@@ -19,7 +19,7 @@ router.post(
   [
     check("name").not().isEmpty(),
     check("email").isEmail().normalizeEmail(), // normalize => Test@Test.com => test@test.com
-    check("password").isLength({ min: 4 }),
+    check("password").isLength({ min: 6 }),
   ],
   userController.addUser
 );

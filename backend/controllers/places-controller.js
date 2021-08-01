@@ -69,22 +69,9 @@ const getPlacebyId = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.userId; //{placeid:"the value"}
 
-  // let places = null;
-  // try {
-  //   places = await Place.find({ userId: userId });
-  // } catch (err) {
-  //   return next(new HttpError("something's wrong with the database!", 500));
-  // }
-  // //const place = PLACES.find((p) => p.id === placeId);
-
-  // if (!places || places.length === 0) {
-  //   return next(new HttpError("no place found.", 404));
-  // }
-
-  // res.json({ places: places.map((item) => item.toObject({ getters: true })) });
-
   let userPlaces = null;
   try {
+    console.log(userId);
     userPlaces = await User.findById(userId).populate("places");
     // console.log(userPlaces.places);
   } catch (err) {
@@ -230,6 +217,7 @@ const updatePlaceById = async (req, res, next) => {
 
 const deletePlaceById = async (req, res, next) => {
   const placeId = req.params.placeId; //{placeid:"the value"}
+  console.log(placeId);
 
   let place = null;
   try {

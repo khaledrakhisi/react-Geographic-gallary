@@ -9,7 +9,7 @@ const UserItem = (props) => {
   return (
     <li className="user-item">
       <Card className="user-item__content">
-        <Link to={`/${props.id}/places`}>
+        <Link to={`/places/user/${props.id}`}>
           <div className="user-item__image">
             {/* <img src={props.image} alt={props.name}/> */}
             <Avatar image={props.imageUrl ? props.imageUrl : "https://www.kindpng.com/picc/m/22-223941_transparent-avatar-png-male-avatar-icon-transparent-png.png"} alt={props.name} />

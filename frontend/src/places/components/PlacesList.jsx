@@ -32,8 +32,9 @@ function PlacesList (props) {
           address={item.address}
           description={item.description}
           userId={item.userId}
-          coordinates={item.coordinates}
-          showEditButtons={auth.isLoggedin}
+          coordinates={item.location}
+          showEditButtons={auth.loggedinUser && auth.loggedinUser._id === item.userId}
+          afterItemUpdate = {props.afterItemUpdate}
         />
       ))}
     </ul>

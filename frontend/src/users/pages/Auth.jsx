@@ -115,7 +115,7 @@ function Auth() {
         />
       )}
       <Card className="authentication">
-        {isLoading && <LoadingSpinner asOverlay />}
+        {isLoading && <LoadingSpinner />}
         {isSignupMode ? (
           <h3>Signing new user up</h3>
         ) : (
@@ -155,8 +155,8 @@ function Auth() {
             id="input3"
             type="password"
             label="password: "
-            validators={[VALIDATOR_MINLENGTH(8)]}
-            errorText="invalid password"
+            validators={[VALIDATOR_MINLENGTH(6)]}
+            errorText="invalid password. password must be at least 6 characters"
             onInput={eh_input}
           />
 
