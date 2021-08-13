@@ -10,7 +10,7 @@
     text-decoration: none;
     display: inline-block;
   }
-  
+
   .button:focus {
     outline: none;
   }
@@ -19,6 +19,17 @@
   .button:active {
     background: #ff4382;
     border-color: #ff4382;
+  }
+
+  .button--isCompact{
+    padding: 0.4rem 0.5rem;
+    margin-right: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0;
+  }
+  .button--borderTopLeftRoundCorner{
+    border-top-left-radius: 4px;
   }
   
   .button--inverse {

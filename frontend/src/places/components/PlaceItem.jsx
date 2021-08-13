@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
-import {useParams, useHistory} from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
+import FontAwesome from "react-fontawesome";
 
 import Button from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UIElements/Card";
@@ -12,15 +13,13 @@ import { AuthContext } from "../../shared/components/context/Auth-context";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 function PlaceItem(props) {
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeletionOpen, setIsDeletionOpen] = useState(false);
-  const {isLoading, errorMessage, sendRequest, clearError} = useHttpClient();
+  const { isLoading, errorMessage, sendRequest, clearError } = useHttpClient();
   const history = useHistory();
   const authentication = useContext(AuthContext);
 
   const placeId = useParams().placeId;
-
 
   const showMap = () => {
     setIsModalOpen(true);
@@ -33,12 +32,15 @@ function PlaceItem(props) {
   const openDeletionModal = () => setIsDeletionOpen(true);
   const deletePlace = async () => {
     closeDeletionModal();
-    try{      
-      await sendRequest(`http://localhost:5000/api/places/${props.id}`, "DELETE");
+    try {
+      await sendRequest(
+        `http://localhost:5000/api/places/${props.id}`,
+        "DELETE"
+      );
       //console.log("dddddd.");
-      props.afterItemUpdate(props.id);      
-      history.push(`/places/user/${authentication.loggedinUser._id}`)
-    }catch(err){}
+      props.afterItemUpdate(props.id);
+      history.push(`/places/user/${authentication.loggedinUser._id}`);
+    } catch (err) {}
   };
 
   // const mediaMatch = window.matchMedia('(max-width: 768px)');
@@ -52,7 +54,7 @@ function PlaceItem(props) {
   };
 
   return (
-    <React.Fragment>    
+    <React.Fragment>
       <Modal
         show={isModalOpen}
         onCancel={closeMap}
@@ -84,9 +86,9 @@ function PlaceItem(props) {
           <h3>Are you sure you want to proceed?</h3>
         </div>
       </Modal>
-      <li className="place-item">      
+      <li className="place-item">
         <Card className="place-item__content">
-        {isLoading && <LoadingSpinner asOverlay/>}
+          {isLoading && <LoadingSpinner asOverlay />}
           <div className="place-item__image">
             <img src={props.imageUrl} alt={props.title} />
           </div>
@@ -96,13 +98,34 @@ function PlaceItem(props) {
             <p>{props.description}</p>
           </div>
           <div className="place-item__actions">
-            <Button inverse onClick={showMap}>
-              View on map
+            <Button inverse onClick={showMap} isCompact borderTopLeftRoundCorner>
+            <FontAwesome
+                  className="fas fa-map-marker-alt"
+                  name="map-marker"
+                  // size="1x"
+                  // spin tyle={{ textShadow: "0 1px 0 rgba(0, 0, 0, 0.1)" }}
+                />
             </Button>
-            {props.showEditButtons && <Button to={"/places/" + props.id}>Edit</Button>}
-            {props.showEditButtons && <Button danger onClick={openDeletionModal}>
-              Delete
-            </Button>}
+            {props.showEditButtons && (
+              <Button to={"/places/" + props.id} isCompact>
+              <FontAwesome
+                  className="fas fa-pencil-alt"
+                  name="pencil"
+                  // size="1x"
+                  // spin tyle={{ textShadow: "0 1px 0 rgba(0, 0, 0, 0.1)" }}
+                />
+              </Button>
+            )}
+            {props.showEditButtons && (
+              <Button danger onClick={openDeletionModal} isCompact>
+              <FontAwesome
+                  className="fas fa-trash-alt"
+                  name="trash"
+                  // size="1x"
+                  // spin tyle={{ textShadow: "0 1px 0 rgba(0, 0, 0, 0.1)" }}
+                />
+              </Button>
+            )}
           </div>
         </Card>
       </li>
